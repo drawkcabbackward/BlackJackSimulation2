@@ -34,11 +34,22 @@ public enum Card {
 
     /**
      * Returns the base blackjack value of the card.
-     * <p>Note: Ace is treated as 1 by default; handling 11 is the responsibility of hand logic.</p>
+     * <p>Note: Ace is treated as 1 by default. Handling 11 is the responsibility of hand logic
+     * when calculating total score.
+     * .</p>
      *
      * @return the blackjack value of the card
      */
     public int getValue() {
         return value;
+    }
+
+    /**
+     * Returns the max value of a Card.
+     *
+     * <p>Useful if you want to force Ace to be considered as 11.</p>
+     */
+    public int getMaxValue() {
+        return value == 1 ? 11 : value;
     }
 }

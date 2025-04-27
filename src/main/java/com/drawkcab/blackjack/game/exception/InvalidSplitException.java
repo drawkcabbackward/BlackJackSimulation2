@@ -5,7 +5,7 @@ package com.drawkcab.blackjack.game.exception;
  * that is not eligible for splitting.
  *
  * <p>Splitting is only allowed when the hand contains exactly two cards
- * of the same value (e.g., two 8s, or a King and a Queen). Attempting
+ * of the same value (e.g. two 8s verse a King and a Queen). Attempting
  * to split an invalid hand will result in this exception being thrown.</p>
  *
  * @see com.drawkcab.blackjack.game.Hand
