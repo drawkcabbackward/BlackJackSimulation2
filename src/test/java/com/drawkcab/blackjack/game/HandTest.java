@@ -12,6 +12,122 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class HandTest {
 
+    @Test
+    void addCard_newCard_addedToTotal() {
+        Hand hand = new Hand(List.of(Card.JACK, Card.FIVE));
+
+        hand.addCard(Card.SIX);
+
+        assertThat(hand.totalValue()).isEqualTo(21);
+    }
+
+    @Test
+    void justSplit_split_true() {
+        Hand hand = new Hand(List.of(Card.TEN, Card.TEN));
+
+        Hand splitHand = hand.split();
+
+        assertThat(hand.justSplit()).isTrue();
+        assertThat(splitHand.justSplit()).isTrue();
+    }
+
+    @Test
+    void justSplit_notSplit_false() {
+        Hand hand = new Hand(List.of(Card.TEN, Card.TEN));
+
+        assertThat(hand.justSplit()).isFalse();
+    }
+
+    @Test
+    void justSplit_splitPostHit_false() {
+        Hand hand = new Hand(List.of(Card.TEN, Card.TEN));
+
+        hand.split();
+        hand.addCard(Card.ACE);
+
+        assertThat(hand.justSplit()).isFalse();
+    }
+
+    @Test
+    void isInitialHand_twoCards_true() {
+        Hand hand = new Hand(List.of(Card.TEN, Card.ACE));
+
+        assertThat(hand.isInitialHand()).isTrue();
+    }
+
+    @Test
+    void isInitialHand_threeCards_false() {
+        Hand hand = new Hand(List.of(Card.TEN, Card.TWO, Card.THREE));
+
+        assertThat(hand.isInitialHand()).isFalse();
+    }
+
+    @Test
+    void isInitialHand_postSplit_false() {
+        Hand hand = new Hand(List.of(Card.TEN, Card.TEN));
+
+        Hand splitHand = hand.split();
+
+        assertThat(hand.isInitialHand()).isFalse();
+        assertThat(splitHand.isInitialHand()).isFalse();
+    }
+
+    @Test
+    void getFaceUpCard_returnsFirstCard() {
+        Hand hand = new Hand(List.of(Card.TEN, Card.ACE));
+
+        assertThat(hand.getFaceUpCard()).isEqualTo(Card.TEN);
+    }
+
+    @Test
+    void getFaceUpCard_emptyHand_throws() {
+        Hand hand = new Hand(List.of());
+
+        assertThrows(IllegalStateException.class, hand::getFaceUpCard);
+    }
+
+    @Test
+    void isBlackJack_blackJack_true() {
+        Hand hand = new Hand(List.of(Card.TEN, Card.ACE));
+
+        assertThat(hand.isBlackJack()).isTrue();
+    }
+
+    @Test
+    void isBlackJack_notBlackJack_false() {
+        Hand hand = new Hand(List.of(Card.FIVE, Card.ACE));
+
+        assertThat(hand.isBlackJack()).isFalse();
+    }
+
+    @Test
+    void isSoft_soft_true() {
+        Hand hand = new Hand(List.of(Card.FIVE, Card.ACE));
+
+        assertThat(hand.isSoft()).isTrue();
+    }
+
+    @Test
+    void isSoft_hard_false() {
+        Hand hand = new Hand(List.of(Card.FIVE, Card.TEN));
+
+        assertThat(hand.isSoft()).isFalse();
+    }
+
+    @Test
+    void isBust_over21_true() {
+        Hand hand = new Hand(List.of(Card.JACK, Card.TEN, Card.FIVE));
+
+        assertThat(hand.isBust()).isTrue();
+    }
+
+    @Test
+    void isBust_under21_true() {
+        Hand hand = new Hand(List.of(Card.JACK, Card.FIVE));
+
+        assertThat(hand.isBust()).isFalse();
+    }
+
     @Nested
     class TotalValue {
         @Test
@@ -56,19 +172,6 @@ class HandTest {
             assertThat(hand.totalValue()).isEqualTo(21);
         }
     }
-
-    @Nested
-    class AddCard {
-        @Test
-        void newCard_addedToTotal() {
-            Hand hand = new Hand(List.of(Card.JACK, Card.FIVE));
-
-            hand.addCard(Card.SIX);
-
-            assertThat(hand.totalValue()).isEqualTo(21);
-        }
-    }
-
 
     @Nested
     class CanSplit {
@@ -132,8 +235,6 @@ class HandTest {
             assertThat(thrown).hasMessageThat().contains("Hand is not eligible to be split");
         }
     }
-
-
 
 
 }

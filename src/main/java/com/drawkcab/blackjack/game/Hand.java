@@ -9,8 +9,8 @@ import java.util.List;
  * Represents a hand of cards in a Blackjack game.
  *
  * <p>A hand maintains a mutable list of cards that can grow as the player hits or splits during
- * gameplay. It provides methods for calculating the best possible hand value (considering Aces
- * as either 1 or 11), checking for split eligibility, and performing splits.</p>
+ * gameplay. This class has logic for handling splits and is able to answer common BlackJack
+ * questions about a hand.</p>
  *
  * @see Card
  */
@@ -39,21 +39,13 @@ public class Hand {
         boolean hasAce = false;
         int total = 0;
 
-        // The algorithm counts aces as 1 initially and then tries to promote an ace to 11 if
-        // promotion would keep the total less than or equal to 21.
-        for(Card card : cards) {
-            if (card == Card.ACE) {
-                hasAce = true;
-            }
+        // First calculate the total, with Ace treated as 1.
+        total = rawTotal();
 
-            // For ace this will return 1, for every other card it will return the only value it
-            // has.
-            total += card.getValue();
-        }
-
-        // We only need to check if there are any aces. Its not possible for two aces to both be
+        // Now handle promotion of Aces.
+        // We only need to check if there are any aces. It's not possible for two aces to both be
         // valued at 11 in the same hand.
-        if (hasAce && total <= 11) {
+        if (cards.contains(Card.ACE) && total <= 11) {
             total += 10;
         }
 
@@ -73,6 +65,22 @@ public class Hand {
     }
 
     /**
+     * Returns what card would be in each hand if a split were to occur.
+     *
+     * <p>This is read only and does not change the Hand.</p>
+     *
+     * @return the card eligible for splitting
+     * @throws InvalidSplitException if the hand cannot be split
+     */
+    public Card getSplitCard() {
+        if (!canSplit()) {
+            throw new InvalidSplitException("No split card available for unsplittable hand");
+        }
+
+        return cards.getFirst();
+    }
+
+    /**
      * Splits the current hand by removing one card and creating a new hand with it.
      *
      * <p>Splitting is allowed only if the hand is eligible (see {@link #canSplit()}). If
@@ -89,7 +97,75 @@ public class Hand {
         return new Hand(List.of(cards.removeLast()));
     }
 
+    /**
+     * @return {@code true} if this hand was just split and contains a single card.
+     */
+    public boolean justSplit() {
+        return cards.size() == 1;
+    }
+
+    /**
+     * Returns true if the hand is considered in its initial state.
+     *
+     * <p>Importantly, a split hand (single card before hit) is not considered an initial hand,
+     * and only after the automatic hit does it become an initial hand.</p>
+     *
+     * @return {@code true} if an initial hand (2 cards).
+     */
+    public boolean isInitialHand() {
+        return cards.size() == 2;
+    }
+
+    /**
+     * Adds a card to the hand.
+     */
     public void addCard(Card card) {
         cards.add(card);
+    }
+
+    /**
+     * Returns the first (face-up) card of the hand.
+     *
+     * @return the face-up {@link Card}
+     * @throws IllegalStateException if the hand is empty
+     */
+    public Card getFaceUpCard() {
+        if (cards.isEmpty()) {
+            throw new IllegalStateException("A face up card can not be retrieved when the hand " +
+                    "has no cards.");
+        }
+
+        return cards.getFirst();
+    }
+
+    /**
+     * @return {@code true} if the hand is a Blackjack (Ace + 10-value card).
+     */
+    public boolean isBlackJack() {
+        return cards.size() == 2 && totalValue() == 21;
+    }
+
+    /**
+     * @return {@code true} if the hand is a "soft" hand (Ace counted as 11).
+     */
+    public boolean isSoft() {
+        return cards.contains(Card.ACE) && rawTotal() <= 11;
+    }
+
+    /**
+     * @return {@code true} if the hand's total value exceeds 21 (busted).
+     */
+    public boolean isBust() {
+        return totalValue() > 21;
+    }
+
+    private int rawTotal() {
+        int total = 0;
+
+        for(Card card : cards) {
+            total += card.getValue();
+        }
+
+        return total;
     }
 }
