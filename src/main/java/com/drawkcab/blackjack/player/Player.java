@@ -32,7 +32,7 @@ public class Player {
      * @param strategy   the playing strategy
      * @param seedAmount the initial bank amount
      */
-    Player(Strategy strategy, BigDecimal seedAmount) {
+    public Player(Strategy strategy, BigDecimal seedAmount) {
         this.strategy = strategy;
         this.seedAmount = seedAmount;
         this.roundState = new RoundState();
@@ -81,15 +81,21 @@ public class Player {
         return strategy.getNextMove(getActivePlayerHand(), roundState.getDealerFaceUpCard(), bank);
     }
 
+    /** Resets the player to their original state. */
+    public void reset() {
+        bank = seedAmount;
+        roundState.reset();
+    }
+
 
     /** Adds a card to the active hand (hit action). */
     public void hit(Card card) {
-        getActivePlayerHand().hit(card);
+        roundState.hit(card);
     }
 
     /** Splits the active hand into two hands, adjusting the bank accordingly. */
     public void split() {
-        HandState splitHand = getActivePlayerHand().split();
+        HandState splitHand = roundState.split();
         bank = bank.subtract(splitHand.getBetAmount());
         roundState.addSplitHand(splitHand);
     }
@@ -97,17 +103,17 @@ public class Player {
     /** Doubles the bet and hits exactly one more card. */
     public void doubleDown(Card card) {
         bank = bank.subtract(getActivePlayerHand().getBetAmount());
-        getActivePlayerHand().doubleDown(card);
+        roundState.doubleDown(card);
     }
 
     /** Surrenders the current hand, forfeiting half the bet. */
     public void surrender() {
-        getActivePlayerHand().surrender();
+        roundState.surrender();
     }
 
     /** Stands on the current hand, taking no further action. */
     public void stand() {
-        getActivePlayerHand().stand();
+        roundState.stand();
     }
 
     /** Pays the player a given amount (e.g., winnings + initial bet). */
@@ -125,16 +131,9 @@ public class Player {
         return roundState.hasUnfinishedHands();
     }
 
-    /** @return the player's currently active hand */
     HandState getActivePlayerHand() {
         return roundState.getActivePlayerHand();
     }
-
-    private void reset() {
-        bank = seedAmount;
-        roundState.reset();
-    }
-
 
     /**
      * Manages the per-round state for a player in Blackjack.
@@ -149,20 +148,12 @@ public class Player {
         private Card dealerFaceUpCard;
         private boolean roundStarted;
 
-
-        public RoundState() {
+        RoundState() {
             handStates = new ArrayList<>();
             reset();
         }
 
-        /**
-         * Starts a new round for the player with a fresh hand and dealer's upcard.
-         *
-         * @param hand             the initial hand dealt to the player
-         * @param bet              the bet for the round
-         * @param dealerFaceUpCard the dealer's visible card
-         */
-        public void startRound(Hand hand, BigDecimal bet, Card dealerFaceUpCard) {
+        void startRound(Hand hand, BigDecimal bet, Card dealerFaceUpCard) {
             if (roundStarted) {
                 throw new IllegalStateException("Cannot start a new round without finishing the " +
                         "previous round.");
@@ -179,18 +170,43 @@ public class Player {
          *
          * @return a copy of the player's final hands
          */
-        public List<HandState> endRound() {
+        List<HandState> endRound() {
             ImmutableList<HandState> finalHands = ImmutableList.copyOf(handStates);
             reset();
             return finalHands;
         }
 
         /** Resets the current round state completely. */
-        public void reset() {
+        private void reset() {
             handStates.clear();
             activeHandIndex = -1;
             dealerFaceUpCard = null;
             roundStarted = false;
+        }
+
+         void hit(Card card) {
+            getActivePlayerHand().hit(card);
+            advanceHandIfFinished();
+        }
+
+        HandState split() {
+            return getActivePlayerHand().split();
+        }
+
+        void doubleDown(Card card) {
+            getActivePlayerHand().doubleDown(card);
+            advanceHandIfFinished();
+        }
+
+
+        void surrender() {
+            getActivePlayerHand().surrender();
+            activeHandIndex++;
+        }
+
+        void stand() {
+            getActivePlayerHand().stand();
+            activeHandIndex++;
         }
 
         /**
@@ -199,31 +215,33 @@ public class Player {
          * @return the active {@link HandState}
          * @throws IllegalStateException if no active hand exists (round not started)
          */
-        public HandState getActivePlayerHand() {
+        HandState getActivePlayerHand() {
             if (activeHandIndex == -1) {
                 throw new IllegalStateException("No active player hand exists. Did you call startRound()?");
             }
             return handStates.get(activeHandIndex);
         }
 
-        /** Adds a new hand as a result of a split. */
-        public void addSplitHand(HandState splitHand) {
+        void addSplitHand(HandState splitHand) {
             handStates.add(splitHand);
         }
 
-        /** @return the dealer's face-up card for the round */
-        public Card getDealerFaceUpCard() {
+        Card getDealerFaceUpCard() {
             return dealerFaceUpCard;
         }
 
-        /** @return {@code true} if the round has started, {@code false} otherwise */
-        public boolean isRoundStarted() {
+        boolean isRoundStarted() {
             return roundStarted;
         }
 
-        /** @return {@code true} if the player still has any unfinished hands */
-        public boolean hasUnfinishedHands() {
+        boolean hasUnfinishedHands() {
             return handStates.stream().anyMatch(playerHand -> !playerHand.isFinished());
+        }
+
+        private void advanceHandIfFinished() {
+            if(getActivePlayerHand().isFinished()) {
+                activeHandIndex++;
+            }
         }
     }
 }

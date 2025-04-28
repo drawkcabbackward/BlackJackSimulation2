@@ -4,6 +4,7 @@ import com.drawkcab.blackjack.game.Card;
 import com.drawkcab.blackjack.game.Hand;
 import com.drawkcab.blackjack.player.strategy.Strategy;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -155,5 +156,70 @@ class PlayerTest {
     @Test
     void getNextMove_withoutStartingRound_throwsException() {
         assertThrows(IllegalStateException.class, () -> player.getNextMove());
+    }
+
+    @Test
+    void split_multipleSplits_succeeds() {
+        player.startRound(new Hand(TWO_EIGHTS), BET, DEALER_FACE_UP);
+
+        player.split();
+        player.hit(Card.EIGHT);
+        player.split();
+
+        List<HandState> handStates = player.endRound();
+
+        assertThat(handStates).hasSize(3);
+        assertThat(handStates.stream().map(HandState::getTotalValue).allMatch(value -> value == 8)).isTrue();
+
+    }
+
+    @Nested
+    class HandAdvancement {
+        @Test
+        void bust_afterSplit_advancesHand() {
+            player.startRound(new Hand(TWO_EIGHTS), BET, DEALER_FACE_UP);
+
+            player.split();
+            player.hit(Card.TEN);
+            player.hit(Card.TEN);
+
+            assertThat(player.getActivePlayerHand().isBust()).isFalse();
+        }
+
+        @Test
+        void doubleDown_afterSplit_advancesHand() {
+            player.startRound(new Hand(TWO_EIGHTS), BET, DEALER_FACE_UP);
+
+            player.split();
+            // Player always gets a card after a split.
+            player.hit(Card.TEN);
+            player.doubleDown(Card.ACE);
+
+            assertThat(player.getActivePlayerHand().isFinished()).isFalse();
+        }
+
+        @Test
+        void surrender_afterSplit_advancesHand() {
+            player.startRound(new Hand(TWO_EIGHTS), BET, DEALER_FACE_UP);
+
+            player.split();
+            // Player always gets a card after a split.
+            player.hit(Card.TEN);
+            player.surrender();
+
+            assertThat(player.getActivePlayerHand().isSurrendered()).isFalse();
+        }
+
+        @Test
+        void stand_afterSplit_advancesHand() {
+            player.startRound(new Hand(TWO_EIGHTS), BET, DEALER_FACE_UP);
+
+            player.split();
+            // Player always gets a card after a split.
+            player.hit(Card.TEN);
+            player.stand();
+
+            assertThat(player.getActivePlayerHand().isFinished()).isFalse();
+        }
     }
 }
