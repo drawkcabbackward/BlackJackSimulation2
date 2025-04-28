@@ -2,11 +2,10 @@ package com.drawkcab.blackjack;
 
 
 import com.drawkcab.blackjack.player.strategy.BookPlayerStrategy;
-import com.drawkcab.blackjack.player.strategy.Strategy;
-import com.drawkcab.blackjack.simulation.modules.BlackJackSimulationModule;
-import com.drawkcab.blackjack.simulation.modules.BlackJackSimulationModule.SimulationConfiguration;
 import com.drawkcab.blackjack.simulation.MonteCarloSimulator;
 import com.drawkcab.blackjack.simulation.MonteCarloSimulator.SimulationResult;
+import com.drawkcab.blackjack.simulation.modules.BlackJackSimulationModule;
+import com.drawkcab.blackjack.simulation.modules.BlackJackSimulationModule.SimulationConfiguration;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 

@@ -17,7 +17,7 @@ public class MonteCarloSimulator {
     }
 
     public SimulationResult run(int numberOfRuns) {
-        List<Long> games = new ArrayList<Long>();
+        List<Long> games = new ArrayList<>();
 
         for (int i = 0; i < numberOfRuns; i++) {
             games.add(game.playGame());

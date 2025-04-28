@@ -1,18 +1,12 @@
 package com.drawkcab.blackjack.simulation;
 
 import com.drawkcab.blackjack.game.Deck;
-
-import com.drawkcab.blackjack.game.Hand;
-import com.drawkcab.blackjack.game.HandEvaluator;
-import com.drawkcab.blackjack.game.HandOutcome;
-
-import com.drawkcab.blackjack.player.*;
+import com.drawkcab.blackjack.player.Dealer;
+import com.drawkcab.blackjack.player.Player;
 import com.drawkcab.blackjack.simulation.modules.MinBet;
 import com.google.inject.Inject;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.List;
 
 /**
  * Simulates a game of Blackjack between a player and a dealer.
