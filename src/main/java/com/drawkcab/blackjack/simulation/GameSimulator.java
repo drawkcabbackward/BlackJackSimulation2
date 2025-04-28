@@ -43,11 +43,9 @@ public class GameSimulator {
         long numberOfRoundsPlayed = 0;
 
         while (playerHasMinBet()) {
-            // Shuffle at the start of each round to ensure we don't run out of cards.
-            // TODO(brandon): investigate if this is a bottleneck in our simulation and if so
-            // only do this if we are getting close to the end of the deck.
-            deck.shuffle();
-
+            if (deck.cardsRemaining() < 50) {
+                deck.shuffle();
+            }
             roundSimulator.playRound(player, dealer, deck, minBet);
             numberOfRoundsPlayed++;
         }
