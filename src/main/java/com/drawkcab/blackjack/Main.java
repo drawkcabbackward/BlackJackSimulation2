@@ -1,31 +1,44 @@
 package com.drawkcab.blackjack;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
+
+import com.drawkcab.blackjack.player.strategy.BookPlayerStrategy;
+import com.drawkcab.blackjack.player.strategy.Strategy;
+import com.drawkcab.blackjack.simulation.modules.BlackJackSimulationModule;
+import com.drawkcab.blackjack.simulation.modules.BlackJackSimulationModule.SimulationConfiguration;
+import com.drawkcab.blackjack.simulation.MonteCarloSimulator;
+import com.drawkcab.blackjack.simulation.MonteCarloSimulator.SimulationResult;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
+import java.math.BigDecimal;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class Main {
     public static void main(String[] args) {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
+        setupLogging(Level.SEVERE);
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            System.out.println("i = " + i);
+        SimulationConfiguration simulationConfiguration =
+                new SimulationConfiguration(
+                        6, // numDecks
+                        new BigDecimal("100.00"), // startingBank
+                        new BigDecimal("10.00"), // minBet
+                        new BookPlayerStrategy() // playerStrategy
+                );
+
+        Injector injector = Guice.createInjector(new BlackJackSimulationModule(simulationConfiguration));
+        MonteCarloSimulator simulator = injector.getInstance(MonteCarloSimulator.class);
+
+        SimulationResult result = simulator.run(10_000);
+
+        System.out.printf("Simulation Results = [%s]", result);
+    }
+
+    static void setupLogging(Level level) {
+        Logger rootLogger = Logger.getLogger("");
+        rootLogger.setLevel(level);
+        for (var handler : rootLogger.getHandlers()) {
+            handler.setLevel(level);
         }
     }
 }
-/*
-    Class structure
-
-    Player
-        Strategy
-
-    Card
-    Deck
-    Hand
-
-
-    Round Simulation
-
- */

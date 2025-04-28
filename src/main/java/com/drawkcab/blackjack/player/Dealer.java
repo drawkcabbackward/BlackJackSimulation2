@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 
 public class Dealer extends Player {
 
-    Dealer(Strategy strategy) {
+    public Dealer(Strategy strategy) {
         super( strategy, BigDecimal.ZERO);
     }
 

@@ -23,7 +23,7 @@ public class Deck {
      *
      * @param numDecks the number of standard 52-card decks to include
      */
-    Deck(int numDecks) {
+    public Deck(int numDecks) {
         cards = new ArrayList<>();
         pos = 0;
 
