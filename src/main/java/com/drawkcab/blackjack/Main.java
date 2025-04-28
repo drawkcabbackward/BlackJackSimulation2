@@ -1,6 +1,5 @@
 package com.drawkcab.blackjack;
 
-
 import com.drawkcab.blackjack.player.strategy.BookPlayerStrategy;
 import com.drawkcab.blackjack.simulation.MonteCarloSimulator;
 import com.drawkcab.blackjack.simulation.MonteCarloSimulator.SimulationResult;
@@ -15,7 +14,7 @@ import java.util.logging.Logger;
 
 public class Main {
     public static void main(String[] args) {
-        setupLogging(Level.SEVERE);
+        setupLogging(Level.WARNING);
 
         SimulationConfiguration simulationConfiguration =
                 new SimulationConfiguration(
@@ -33,7 +32,7 @@ public class Main {
         System.out.printf("Simulation Results = [%s]", result);
     }
 
-    static void setupLogging(Level level) {
+    private static void setupLogging(Level level) {
         Logger rootLogger = Logger.getLogger("");
         rootLogger.setLevel(level);
         for (var handler : rootLogger.getHandlers()) {

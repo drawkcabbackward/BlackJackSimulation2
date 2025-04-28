@@ -24,8 +24,7 @@ import java.math.BigDecimal;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.inject.Guice.createInjector;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class RoundSimulatorTest {
@@ -34,8 +33,6 @@ class RoundSimulatorTest {
     @Bind @Mock HandEvaluator mockHandEvaluator;
     @Mock Strategy playerStrategy;
     @Mock Strategy dealerStrategy;
-
-    @Mock Player mockPlayer;
 
     @Inject
     private RoundSimulator roundSimulator;
@@ -51,8 +48,9 @@ class RoundSimulatorTest {
         dealer = new Dealer(dealerStrategy);
         deck = new Deck(1);
 
-        when(playerStrategy.getNextMove(any(), any(), any())).thenReturn(Move.STAND);
-        when(dealerStrategy.getNextMove(any(), any(), any())).thenReturn(Move.STAND);
+        // Marking these as lenient because when a dealer gets blackjack, no moves are performed.
+        lenient().when(playerStrategy.getNextMove(any(), any(), any())).thenReturn(Move.STAND);
+        lenient().when(dealerStrategy.getNextMove(any(), any(), any())).thenReturn(Move.STAND);
     }
 
     @Test
