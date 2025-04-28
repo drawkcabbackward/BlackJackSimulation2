@@ -12,10 +12,19 @@ import java.math.BigDecimal;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Entry point for running a Monte Carlo Blackjack simulation.
+ *
+ * <p>Initializes logging, configures the simulation parameters, sets up dependency
+ * injection via Guice, and runs a simulation of a specified number of rounds.</p>
+ *
+ * <p>The results of the simulation are printed to standard output.</p>
+ */
 public class Main {
     public static void main(String[] args) {
         setupLogging(Level.WARNING);
 
+        // MODIFY SIMULATION CONFIGURATION HERE
         SimulationConfiguration simulationConfiguration =
                 new SimulationConfiguration(
                         6, // numDecks
