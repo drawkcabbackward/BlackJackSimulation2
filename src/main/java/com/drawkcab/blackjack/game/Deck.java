@@ -29,7 +29,9 @@ public class Deck {
 
         for (Card card : Card.values()) {
             for (int i = 0; i < numDecks; i++) {
-                cards.add(card);
+                for(int j = 0; j < 4; j++) {
+                    cards.add(card);
+                }
             }
         }
         shuffle();
